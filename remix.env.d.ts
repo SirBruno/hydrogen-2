@@ -5,8 +5,16 @@
 // Enhance TypeScript's built-in typings.
 import '@total-typescript/ts-reset';
 
-import type {Storefront, HydrogenCart} from '@shopify/hydrogen';
-import type {HydrogenSession} from './server';
+import type {
+  Storefront,
+  CustomerAccount,
+  HydrogenCart,
+} from '@shopify/hydrogen';
+import type {
+  LanguageCode,
+  CountryCode,
+} from '@shopify/hydrogen/storefront-api-types';
+import type {AppSession} from '~/lib/session';
 
 declare global {
   /**
@@ -23,17 +31,30 @@ declare global {
     PRIVATE_STOREFRONT_API_TOKEN: string;
     PUBLIC_STORE_DOMAIN: string;
     PUBLIC_STOREFRONT_ID: string;
+    PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID: string;
+    PUBLIC_CUSTOMER_ACCOUNT_API_URL: string;
   }
+
+  /**
+   * The I18nLocale used for Storefront API query context.
+   */
+  type I18nLocale = {
+    language: LanguageCode;
+    country: CountryCode;
+    pathPrefix: string;
+  };
 }
 
-/**
- * Declare local additions to `AppLoadContext` to include the session utilities we injected in `server.ts`.
- */
 declare module '@shopify/remix-oxygen' {
+  /**
+   * Declare local additions to the Remix loader context.
+   */
   export interface AppLoadContext {
     env: Env;
     cart: HydrogenCart;
-    storefront: Storefront;
-    session: HydrogenSession;
+    storefront: Storefront<I18nLocale>;
+    customerAccount: CustomerAccount;
+    session: AppSession;
+    waitUntil: ExecutionContext['waitUntil'];
   }
 }
